@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signature Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #000;
+            margin: 20px auto;
+            display: block;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .clear-btn {
+            background-color: #f44336;
+        }
+        .clear-btn:hover {
+            background-color: #da190b;
+        }
+        .flash-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>{{ "Register" if register else "Verify" }} Your Signature</h2>
+    <p>User: {{ user }}</p>
+    <p>{{ "Draw your signature to register it" if register else "Please provide your signature for verification" }}</p>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <canvas id="signatureCanvas" width="500" height="300"></canvas>
+    <br>
+    <button onclick="submitSignature()">{{ "Register" if register else "Verify" }} Signature</button>
+    <button onclick="clearCanvas()" class="clear-btn">Clear</button>
+
+    <script>
+        let isDrawing = false;
+        const canvas = document.getElementById("signatureCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        // Set white background
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Touch events
+        canvas.addEventListener("touchstart", handleTouchStart, false);
+        canvas.addEventListener("touchmove", handleTouchMove, false);
+        canvas.addEventListener("touchend", stopDrawing, false);
+        
+        // Mouse events
+        canvas.addEventListener("mousedown", startDrawing);
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("mouseup", stopDrawing);
+        canvas.addEventListener("mouseout", stopDrawing);
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startDrawing({
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            draw({
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "black";
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function submitSignature() {
+            const data = {
+                user: JSON.parse('{{ user | tojson }}'),
+                signature: canvas.toDataURL("image/png"),
+                register: JSON.parse('{{ register | tojson }}')
+            };
+
+            fetch("/submit-signature", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || 'Verification failed');
+                    });
+                }
+                return response.text();
+            })
+            .then(result => {
+                alert(result);
+                if (result.includes("successful")) {
+                    window.location.href = "/";
+                } else {
+                    clearCanvas();
+                }
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
