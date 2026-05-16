@@ -1,114 +1,141 @@
-# Multimodal Authentication
+# 🔐 Multimodal Authentication System
 
-A Flask-based authentication demo that combines:
-- Hand gesture verification (webcam + OpenCV)
-- Signature verification (browser canvas + image comparison)
+![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)
+![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?style=for-the-badge&logo=flask)
+![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green?style=for-the-badge&logo=opencv)
+![Deployment](https://img.shields.io/badge/Deployment-Render-purple?style=for-the-badge)
 
-## Requirements
+A robust, dual-layer authentication system combining **Computer Vision-based Hand Gesture Recognition** and **Digital Signature Verification**. This project explores alternative, password-less biometric authentication mechanisms for web applications.
 
+---
+
+## 📖 Project Overview
+
+Traditional passwords are fundamentally flawed and prone to social engineering. This project introduces a **two-step biometric authentication pipeline**:
+1. **Physical Token (Hand Gesture)**: Users register a unique hand gesture captured via webcam.
+2. **Behavioral Token (Signature)**: Users draw their unique signature on an HTML5 Canvas.
+
+During login, the system strictly compares the captured gesture and signature against the registered baseline using advanced image processing algorithms, ensuring high security and preventing unauthorized access.
+
+---
+
+## ✨ Features
+
+- **Gesture Authentication**: Real-time webcam capture and evaluation of hand shapes.
+- **Signature Verification**: Smooth, browser-based drawing canvas to capture digital signatures.
+- **Structural Similarity (SSIM)**: Pixel-perfect structural comparison of images.
+- **Contour & Shape Analysis**: Compares stroke count, contour area, aspect ratios, and density for strict validation.
+- **Cloud-Ready**: Pre-configured for deployment on Render.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend**: Python, Flask, Gunicorn
+- **Computer Vision**: OpenCV, MediaPipe (conceptually for advanced tracking), Scikit-Image (SSIM)
+- **Frontend**: HTML5 Canvas, CSS, JavaScript (Vanilla)
+- **Data Storage**: Local File System (`user_data/`)
+
+---
+
+## 🧠 System Architecture & Workflow
+
+### 1. Registration Flow
+1. User enters a unique username.
+2. **Webcam Initialization**: User presses `s` to snapshot a secret hand gesture.
+3. **Canvas Initialization**: User draws their signature on the screen and submits.
+4. Images are thresholded, processed, and stored securely as baselines.
+
+### 2. Login Flow
+1. User enters their username to initiate login.
+2. System prompts for the **Gesture**: User mimics the exact registered gesture.
+3. System prompts for the **Signature**: User signs the canvas.
+4. **Validation Engine**:
+   - Compares gesture similarity and contour differences.
+   - Computes Structural Similarity Index (SSIM) for the signature.
+   - Matches stroke counts, area density, and bounding boxes.
+5. Access is Granted or Denied based on threshold adherence.
+
+---
+
+## 📂 Folder Structure
+
+```text
+📦 Multimodal_Authentication
+ ┣ 📂 static/                # CSS and client-side JavaScript
+ ┣ 📂 templates/             # HTML templates (Jinja2)
+ ┣ 📂 user_data/             # Stored registration baselines (ephemeral in cloud)
+ ┣ 📜 app.py                 # Main Flask application & routes
+ ┣ 📜 gesture_auth.py        # OpenCV gesture processing logic
+ ┣ 📜 signature_verification.py # SSIM & Contour analysis logic
+ ┣ 📜 requirements.txt       # Python dependencies
+ ┣ 📜 Procfile               # Gunicorn deployment config
+ ┣ 📜 .python-version        # Server Python runtime version
+ ┗ 📜 README.md              # Project documentation
+```
+
+---
+
+## 🚀 Installation Steps
+
+### Prerequisites
 - Windows 10/11
 - Python 3.10+ (3.11 recommended)
-- Webcam access
+- Working Webcam
 
-## Setup (PowerShell)
+### Local Setup (PowerShell)
 
-Run these commands from the project root:
+1. **Clone the repository** (if you haven't):
+   ```powershell
+   git clone https://github.com/Nanditha-13/Multimodal_Authentication.git
+   cd Multimodal_Authentication
+   ```
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
+2. **Create and activate a virtual environment**:
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+   *(Note: If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first)*
 
-## Run the Project
+3. **Install Dependencies**:
+   ```powershell
+   python -m pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
 
-```powershell
-python app.py
-```
+4. **Run the Application**:
+   ```powershell
+   python app.py
+   ```
+   Navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
-Open in browser:
-- https://multimodal-authentication.onrender.com
+---
 
-## How to Use
+## ☁️ Deployment Guide (Render)
 
-### Register
-1. Open `/register`
-2. Enter a username
-3. Webcam window opens
-   - Press `s` to capture gesture
-   - Press `q` to cancel
-4. Draw and submit signature on the signature page
+This application is configured for seamless deployment on [Render](https://render.com/).
 
-### Login
-1. Open `/login`
-2. Enter the same username
-3. Webcam window opens
-   - Press `s` to capture login gesture
-   - Press `q` to cancel
-4. Draw and submit signature for verification
-
-## Data Storage
-
-Captured files are stored in:
-- `user_data/`
-
-This includes gesture images and signature PNG files for registration/login attempts.
-
-## Troubleshooting
-
-- **`ModuleNotFoundError` for cv2/skimage/flask**
-  - Make sure virtual environment is activated.
-  - Reinstall dependencies:
-    ```powershell
-    pip install -r requirements.txt
-    ```
-
-- **PowerShell blocks venv activation**
-  - Use:
-    ```powershell
-    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-    ```
-  - Then activate again:
-    ```powershell
-    .\.venv\Scripts\Activate.ps1
-    ```
-
-- **Webcam not opening**
-  - Close apps using camera (Zoom/Teams/Camera app).
-  - Check Windows camera permissions.
-
-- **Signature/Gesture keeps failing**
-  - Use similar lighting/background.
-  - Keep hand position and signature style consistent.
-
-## Optional Test Script
-
-You can run:
-
-```powershell
-python test_auth.py
-```
-
-Note: this still requires webcam and properly registered user data.
-
-## Deployment (Render)
-
-This project is configured for deployment on [Render](https://render.com/). 
-The following configurations are included to support cloud deployment:
-- **`Procfile`**: Configures Gunicorn to serve the Flask app (`web: gunicorn app:app`).
-- **`requirements.txt`**: Uses `opencv-python-headless` instead of `opencv-python` to prevent errors relating to missing GUI system libraries in Render's container, and includes `gunicorn`.
-- **`.python-version`**: Enforces Python 3.11.6 on the server.
-- **Environment Variables**: The app requires a `SECRET_KEY` environment variable configured in Render's dashboard for Flask sessions.
-
-### Deployment Steps
-1. Push this repository to GitHub.
-2. In the Render Dashboard, create a new **Web Service**.
+1. Push your code to a GitHub repository.
+2. Go to the Render Dashboard and create a new **Web Service**.
 3. Connect your GitHub repository.
-4. Render will automatically detect the build command (`pip install -r requirements.txt`) and start command (`gunicorn app:app`).
-5. Under Advanced, add an Environment Variable:
+4. Render will auto-detect:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app` (via `Procfile`)
+5. Under **Advanced**, add an Environment Variable:
    - **Key**: `SECRET_KEY`
-   - **Value**: Provide a strong, random string.
-6. Deploy!
+   - **Value**: *(A strong random string for Flask sessions)*
+6. Click **Deploy!**
 
-> **Note:** Render's free tier uses an ephemeral file system. User data (gestures and signatures) stored in the `user_data/` folder will be lost whenever the server restarts or re-deploys unless connected to persistent storage.
+> ⚠️ **Security & Storage Note**: Render's free tier uses an *ephemeral file system*. User data stored in `user_data/` will be wiped during server restarts. For production, integrate AWS S3 or a persistent Render Disk.
+
+---
+
+## 🔮 Future Enhancements
+
+- **Deep Learning Integration**: Upgrade from OpenCV SSIM to a CNN-based Siamese Network for more robust signature verification.
+- **MediaPipe Hand Tracking**: Integrate MediaPipe to track exact finger joints instead of relying purely on image contours.
+- **Cloud Storage**: Migrate from local file system (`user_data/`) to cloud blob storage (AWS S3/GCS) for persistence.
+
+---
+*Built with ❤️ for a password-less future.*
