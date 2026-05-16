@@ -7,6 +7,8 @@
 
 A robust, dual-layer authentication system combining **Computer Vision-based Hand Gesture Recognition** and **Digital Signature Verification**. This project explores alternative, password-less biometric authentication mechanisms for web applications.
 
+🚀 **Live Project URL:** https://multimodal-authentication.onrender.com
+
 ---
 
 ## 📖 Project Overview
@@ -112,24 +114,7 @@ During login, the system strictly compares the captured gesture and signature ag
 
 ---
 
-## ☁️ Deployment Guide (Render)
 
-This application is configured for seamless deployment on [Render](https://render.com/).
-
-1. Push your code to a GitHub repository.
-2. Go to the Render Dashboard and create a new **Web Service**.
-3. Connect your GitHub repository.
-4. Render will auto-detect:
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn app:app` (via `Procfile`)
-5. Under **Advanced**, add an Environment Variable:
-   - **Key**: `SECRET_KEY`
-   - **Value**: *(A strong random string for Flask sessions)*
-6. Click **Deploy!**
-
-> ⚠️ **Security & Storage Note**: Render's free tier uses an *ephemeral file system*. User data stored in `user_data/` will be wiped during server restarts. For production, integrate AWS S3 or a persistent Render Disk.
-
----
 
 ## 🔮 Future Enhancements
 
