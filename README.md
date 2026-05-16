@@ -91,3 +91,24 @@ python test_auth.py
 ```
 
 Note: this still requires webcam and properly registered user data.
+
+## Deployment (Render)
+
+This project is configured for deployment on [Render](https://render.com/). 
+The following configurations are included to support cloud deployment:
+- **`Procfile`**: Configures Gunicorn to serve the Flask app (`web: gunicorn app:app`).
+- **`requirements.txt`**: Uses `opencv-python-headless` instead of `opencv-python` to prevent errors relating to missing GUI system libraries in Render's container, and includes `gunicorn`.
+- **`.python-version`**: Enforces Python 3.11.6 on the server.
+- **Environment Variables**: The app requires a `SECRET_KEY` environment variable configured in Render's dashboard for Flask sessions.
+
+### Deployment Steps
+1. Push this repository to GitHub.
+2. In the Render Dashboard, create a new **Web Service**.
+3. Connect your GitHub repository.
+4. Render will automatically detect the build command (`pip install -r requirements.txt`) and start command (`gunicorn app:app`).
+5. Under Advanced, add an Environment Variable:
+   - **Key**: `SECRET_KEY`
+   - **Value**: Provide a strong, random string.
+6. Deploy!
+
+> **Note:** Render's free tier uses an ephemeral file system. User data (gestures and signatures) stored in the `user_data/` folder will be lost whenever the server restarts or re-deploys unless connected to persistent storage.
