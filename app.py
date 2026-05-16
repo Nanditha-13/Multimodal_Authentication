@@ -6,7 +6,7 @@ from signature_verification import verify_signature, get_registered_signature
 from gesture_auth import register_gesture, authenticate_gesture
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'  # Required for flash messages
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')  # Required for flash messages
 
 # Ensure the user_data directory exists
 USER_DATA_DIR = "user_data"
